@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import 'savings_mobile.dart';
@@ -11,9 +11,7 @@ class SavingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pos Tabungan')),
-      body: SafeArea(
-        top: false,
+      child: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) =>
               constraints.maxWidth >= AppSpacing.tabletBreakpoint

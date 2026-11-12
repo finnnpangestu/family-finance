@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import 'history_mobile.dart';
@@ -11,9 +11,7 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Transaksi')),
-      body: SafeArea(
-        top: false,
+      child: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) =>
               constraints.maxWidth >= AppSpacing.tabletBreakpoint

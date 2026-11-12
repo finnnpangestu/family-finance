@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_typography.dart';
 
 enum AppButtonVariant { primary, outline, destructive }
 
@@ -29,58 +28,65 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final VoidCallback? action = isLoading ? null : onPressed;
-    final Widget content = _ButtonContent(
+    final Widget child = _ButtonContent(
       label: label,
       icon: icon,
       isLoading: isLoading,
-      loaderColor: variant == AppButtonVariant.outline
-          ? AppColors.primary
-          : AppColors.onPrimary,
-    );
-    final ButtonStyle base = ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll(
-        Size.fromHeight(AppSpacing.buttonHeight),
-      ),
-      textStyle: WidgetStatePropertyAll(
-        AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-      ),
-      shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        ),
-      ),
+      isOutline: variant == AppButtonVariant.outline,
     );
 
-    switch (variant) {
-      case AppButtonVariant.outline:
-        return OutlinedButton(
+    return SizedBox(
+      height: AppSpacing.buttonHeight,
+      child: switch (variant) {
+        AppButtonVariant.outline => OutlineButton(
           onPressed: action,
-          style: base.merge(
-            OutlinedButton.styleFrom(
-              foregroundColor: color ?? AppColors.primary,
-              side: const BorderSide(color: AppColors.border, width: 1.5),
-            ),
-          ),
-          child: content,
-        );
-      case AppButtonVariant.primary:
-      case AppButtonVariant.destructive:
-        final Color fill = variant == AppButtonVariant.destructive
-            ? AppColors.expense
-            : color ?? AppColors.primary;
-        return FilledButton(
+          child: child,
+        ),
+        AppButtonVariant.destructive => DestructiveButton(
           onPressed: action,
-          style: base.merge(
-            FilledButton.styleFrom(
-              backgroundColor: fill,
-              foregroundColor: AppColors.onPrimary,
-              disabledBackgroundColor: fill.withValues(alpha: 0.5),
-              disabledForegroundColor: AppColors.onPrimary,
-            ),
-          ),
-          child: content,
-        );
+          child: child,
+        ),
+        AppButtonVariant.primary => _ColoredPrimaryButton(
+          color: color,
+          onPressed: action,
+          child: child,
+        ),
+      },
+    );
+  }
+}
+
+// Wraps PrimaryButton but overrides fill color when provided.
+class _ColoredPrimaryButton extends StatelessWidget {
+  const _ColoredPrimaryButton({
+    required this.child,
+    required this.onPressed,
+    this.color,
+  });
+
+  final Widget child;
+  final VoidCallback? onPressed;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    if (color == null) {
+      return PrimaryButton(onPressed: onPressed, child: child);
     }
+    // Provide a custom-colored filled button container.
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: AppSpacing.buttonHeight,
+        decoration: BoxDecoration(
+          color: onPressed == null ? color!.withValues(alpha: 0.5) : color!,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: child,
+      ),
+    );
   }
 }
 
@@ -89,31 +95,35 @@ class _ButtonContent extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.isLoading,
-    required this.loaderColor,
+    required this.isOutline,
   });
 
   final String label;
   final IconData? icon;
   final bool isLoading;
-  final Color loaderColor;
+  final bool isOutline;
 
   @override
   Widget build(BuildContext context) {
+    final Color loaderColor = isOutline
+        ? AppColors.primary
+        : AppColors.onPrimary;
     final IconData? leading = icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (isLoading)
           SizedBox.square(
-            dimension: 20,
+            dimension: 18,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
               color: loaderColor,
             ),
           )
         else if (leading != null)
-          Icon(leading, size: 24),
-        if (isLoading || leading != null) const SizedBox(width: AppSpacing.sm),
+          Icon(leading, size: 20),
+        if (isLoading || leading != null) const SizedBox(width: 8),
         Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
       ],
     );

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../widgets/dashboard_quick_actions.dart';
 import '../widgets/dashboard_status_banner.dart';
 import '../widgets/indicator_card.dart';
@@ -13,19 +12,47 @@ class DashboardTablet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.xxl,
-            AppSpacing.sm,
+            AppSpacing.xxl,
             AppSpacing.xxl,
             AppSpacing.xxxl,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Inline top bar
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Keuangan',
+                      style: theme.typography.h2.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.savings_outlined,
+                      color: Color(0xFFFFFFFF),
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xl),
               const DashboardStatusBanner(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,9 +65,9 @@ class DashboardTablet extends StatelessWidget {
                         SummaryHeader(),
                         SizedBox(height: AppSpacing.lg),
                         IndicatorCard(kind: IndicatorKind.income),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.sm),
                         IndicatorCard(kind: IndicatorKind.expense),
-                        SizedBox(height: AppSpacing.md),
+                        SizedBox(height: AppSpacing.sm),
                         IndicatorCard(kind: IndicatorKind.balance),
                       ],
                     ),
@@ -51,7 +78,12 @@ class DashboardTablet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('Menu', style: AppTypography.headingMedium),
+                        Text(
+                          'Menu',
+                          style: theme.typography.h4.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: AppSpacing.md),
                         const DashboardQuickActions(),
                       ],

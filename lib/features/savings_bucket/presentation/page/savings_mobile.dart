@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../widgets/bucket_list.dart';
 import '../widgets/savings_forms.dart';
 import '../widgets/savings_overview.dart';
@@ -15,10 +16,13 @@ class SavingsMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(
+          child: PageHeader(title: 'Pos Tabungan'),
+        ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
-            AppSpacing.sm,
+            0,
             AppSpacing.lg,
             AppSpacing.lg,
           ),

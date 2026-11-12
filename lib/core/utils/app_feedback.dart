@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 
 abstract final class AppFeedback {
   static void showSuccess(BuildContext context, String message) =>
@@ -10,16 +12,35 @@ abstract final class AppFeedback {
   static void showError(BuildContext context, String message) =>
       _show(context, message, AppColors.expense);
 
+  // Pages use shadcn Scaffold (no Material ScaffoldMessenger), so feedback
+  // goes through the ToastLayer that ShadcnApp provides.
   static void _show(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: color,
-          duration: const Duration(seconds: 3),
+    shadcn.showToast(
+      context: context,
+      location: shadcn.ToastLocation.bottomCenter,
+      showDuration: const Duration(seconds: 3),
+      builder: (context, overlay) => GestureDetector(
+        onTap: overlay.close,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 560),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          child: Text(
+            message,
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.onPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-      );
+      ),
+    );
   }
 
   // Returns true only when the user explicitly confirms.

@@ -1,9 +1,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_typography.dart';
 import 'app_button.dart';
 
 class LoadingView extends StatelessWidget {
@@ -72,6 +71,7 @@ class _MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final Widget? trailing = action;
     return Center(
       child: Padding(
@@ -84,8 +84,9 @@ class _MessageView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTypography.bodyLarge.copyWith(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                fontSize: 17,
+                color: theme.colorScheme.mutedForeground,
               ),
             ),
             if (trailing != null) ...[

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../widgets/dashboard_quick_actions.dart';
 import '../widgets/dashboard_status_banner.dart';
 import '../widgets/indicator_card.dart';
@@ -15,24 +14,107 @@ class DashboardMobile extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
-        AppSpacing.sm,
+        AppSpacing.lg,
         AppSpacing.lg,
         AppSpacing.xxxl,
       ),
-      children: [
-        const DashboardStatusBanner(),
-        const SummaryHeader(),
-        const SizedBox(height: AppSpacing.lg),
-        const IndicatorCard(kind: IndicatorKind.income),
-        const SizedBox(height: AppSpacing.md),
-        const IndicatorCard(kind: IndicatorKind.expense),
-        const SizedBox(height: AppSpacing.md),
-        const IndicatorCard(kind: IndicatorKind.balance),
-        const SizedBox(height: AppSpacing.xxl),
-        Text('Menu', style: AppTypography.headingMedium),
-        const SizedBox(height: AppSpacing.md),
-        const DashboardQuickActions(),
+      children: const [
+        _DashboardTopBar(),
+        SizedBox(height: AppSpacing.lg),
+        DashboardStatusBanner(),
+        SummaryHeader(),
+        SizedBox(height: AppSpacing.lg),
+        IndicatorCard(kind: IndicatorKind.income),
+        SizedBox(height: AppSpacing.sm),
+        IndicatorCard(kind: IndicatorKind.expense),
+        SizedBox(height: AppSpacing.sm),
+        IndicatorCard(kind: IndicatorKind.balance),
+        SizedBox(height: AppSpacing.xxl),
+        _MenuHeading(),
+        SizedBox(height: AppSpacing.md),
+        DashboardQuickActions(),
       ],
+    );
+  }
+}
+
+// Inline top bar replacing AppBar — shows app name and date.
+class _DashboardTopBar extends StatelessWidget {
+  const _DashboardTopBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final now = DateTime.now();
+    final bulan = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    final dateStr = '${now.day} ${bulan[now.month - 1]} ${now.year}';
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Keuangan',
+                style: theme.typography.h3.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.foreground,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                dateStr,
+                style: theme.typography.small.copyWith(
+                  color: theme.colorScheme.mutedForeground,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.savings_outlined,
+            color: Color(0xFFFFFFFF),
+            size: 22,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MenuHeading extends StatelessWidget {
+  const _MenuHeading();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Text(
+      'Menu',
+      style: theme.typography.h4.copyWith(
+        fontWeight: FontWeight.w600,
+        color: theme.colorScheme.foreground,
+      ),
     );
   }
 }

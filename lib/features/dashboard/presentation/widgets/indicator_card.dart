@@ -1,17 +1,18 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../controllers/dashboard_controller.dart';
 import '../controllers/dashboard_state.dart';
 
+export 'indicator_card.dart' show IndicatorKind;
+
 enum IndicatorKind { income, expense, balance }
 
-// Large colored figure: green = in, red = out, blue = remaining.
+// Financial indicator card using shadcn_flutter Card.
 class IndicatorCard extends StatelessWidget {
   const IndicatorCard({super.key, required this.kind});
 
@@ -20,37 +21,45 @@ class IndicatorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _IndicatorStyle style = _IndicatorStyle.of(kind);
+    final theme = Theme.of(context);
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
-          children: [
-            Container(
-              width: AppSpacing.buttonHeight,
-              height: AppSpacing.buttonHeight,
-              decoration: BoxDecoration(
-                color: style.surface,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Icon(style.icon, color: style.color, size: 32),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      borderColor: theme.colorScheme.border,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: style.surface,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
-            const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    style.label,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+            child: Icon(style.icon, color: style.color, size: 26),
+          ),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  style.label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: theme.colorScheme.mutedForeground,
+                    fontWeight: FontWeight.w500,
                   ),
-                  _IndicatorValue(selector: style.selector, color: style.color),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                _IndicatorValue(
+                  selector: style.selector,
+                  color: style.color,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -72,7 +81,12 @@ class _IndicatorValue extends ConsumerWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         CurrencyFormatter.formatRupiah(value),
-        style: AppTypography.headingLarge.copyWith(color: color),
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: color,
+          height: 1.3,
+        ),
       ),
     );
   }
@@ -118,7 +132,6 @@ class _IndicatorStyle {
   final double Function(DashboardState state) selector;
 }
 
-// Top-level tear-offs keep selectors const and stable across rebuilds.
 double _selectIncome(DashboardState s) => s.totalIncome;
 double _selectExpense(DashboardState s) => s.totalExpense;
 double _selectBalance(DashboardState s) => s.freeBalance;

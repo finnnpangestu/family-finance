@@ -33,7 +33,6 @@ class CategoryPicker extends StatelessWidget {
         ),
         if (options.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          // Rebuilds only the chips when the text changes.
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
             builder: (context, value, _) => Wrap(
@@ -68,14 +67,29 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      materialTapTargetSize: MaterialTapTargetSize.padded,
-      labelStyle: AppTypography.bodyMedium.copyWith(
-        color: selected ? AppColors.onPrimary : AppColors.textPrimary,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.bodyMedium.copyWith(
+            color: selected ? AppColors.onPrimary : AppColors.textPrimary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
       ),
     );
   }

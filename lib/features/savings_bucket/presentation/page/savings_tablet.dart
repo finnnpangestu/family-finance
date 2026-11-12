@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../widgets/bucket_list.dart';
 import '../widgets/savings_forms.dart';
 import '../widgets/savings_overview.dart';
@@ -18,27 +19,31 @@ class SavingsTablet extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
         child: CustomScrollView(
           slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xxl,
-                AppSpacing.sm,
-                AppSpacing.xxl,
-                AppSpacing.xl,
-              ),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxl,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Expanded(flex: 2, child: SavingsOverview()),
-                    const SizedBox(width: AppSpacing.lg),
-                    Expanded(
-                      child: AppButton(
-                        label: 'Buat Pos Baru',
-                        icon: FluentIcons.add_24_regular,
-                        color: AppColors.savings,
-                        onPressed: () => openCreateBucketSheet(context),
-                      ),
+                    const PageHeader(title: 'Pos Tabungan'),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Expanded(flex: 2, child: SavingsOverview()),
+                        const SizedBox(width: AppSpacing.lg),
+                        Expanded(
+                          child: AppButton(
+                            label: 'Buat Pos Baru',
+                            icon: FluentIcons.add_24_regular,
+                            color: AppColors.savings,
+                            onPressed: () => openCreateBucketSheet(context),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: AppSpacing.xl),
                   ],
                 ),
               ),

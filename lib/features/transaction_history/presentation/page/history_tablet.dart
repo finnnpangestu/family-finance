@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/transaction_entry.dart';
 import '../controllers/history_controller.dart';
@@ -19,50 +20,53 @@ class HistoryTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xxl,
-        AppSpacing.sm,
-        AppSpacing.xxl,
-        0,
-      ),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const PageHeader(title: 'Riwayat Transaksi'),
           Expanded(
-            flex: 5,
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const HistoryFilterBar(),
-                const SizedBox(height: AppSpacing.md),
-                const MonthTotals(),
-                const SizedBox(height: AppSpacing.md),
                 Expanded(
-                  child: Consumer(
-                    builder: (context, ref, _) => HistoryList(
-                      highlightSelection: true,
-                      onEntryTap: ref
-                          .read(historyControllerProvider.notifier)
-                          .select,
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const HistoryFilterBar(),
+                      const SizedBox(height: AppSpacing.md),
+                      const MonthTotals(),
+                      const SizedBox(height: AppSpacing.md),
+                      Expanded(
+                        child: Consumer(
+                          builder: (context, ref, _) => HistoryList(
+                            highlightSelection: true,
+                            onEntryTap: ref
+                                .read(historyControllerProvider.notifier)
+                                .select,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xxl),
+                const Expanded(
+                  flex: 6,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(bottom: AppSpacing.xxxl),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _SelectedDetailCard(),
+                        SizedBox(height: AppSpacing.lg),
+                        SpendingChart(),
+                      ],
                     ),
                   ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.xxl),
-          const Expanded(
-            flex: 6,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: AppSpacing.xxxl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _SelectedDetailCard(),
-                  SizedBox(height: AppSpacing.lg),
-                  SpendingChart(),
-                ],
-              ),
             ),
           ),
         ],

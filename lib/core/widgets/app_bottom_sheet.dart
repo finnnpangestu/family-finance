@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-// Global slide-up container for every form (DESIGN_SYSTEM.md §4).
+// Global slide-up container for every form — uses shadcn DrawerContainer style.
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
   required String title,
@@ -14,7 +13,7 @@ Future<T?> showAppBottomSheet<T>({
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: AppColors.card,
+    backgroundColor: const Color(0xFFFFFFFF),
     constraints: const BoxConstraints(maxWidth: 640),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
@@ -32,12 +31,13 @@ Future<T?> showAppBottomSheet<T>({
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Drag handle
           Center(
             child: Container(
               width: 40,
-              height: 5,
+              height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),

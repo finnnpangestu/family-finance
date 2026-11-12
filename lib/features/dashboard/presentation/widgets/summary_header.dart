@@ -1,16 +1,14 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../domain/models/dashboard_summary.dart';
 import '../controllers/dashboard_controller.dart';
 
-// Total income of the month (Income A + Income B + ...) with its breakdown.
+// Total income of the month (Income A + B + ...) with its breakdown.
 class SummaryHeader extends StatelessWidget {
   const SummaryHeader({super.key});
 
@@ -19,8 +17,19 @@ class SummaryHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F172A), Color(0xFF1E3A5F)],
+        ),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,14 +38,17 @@ class SummaryHeader extends StatelessWidget {
             children: [
               const Icon(
                 FluentIcons.wallet_24_regular,
-                color: AppColors.onPrimary,
+                color: Color(0xFFCBD5E1),
+                size: 18,
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
                   'Total Pemasukan · ${DateFormatter.monthYear(DateTime.now())}',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.border,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFFCBD5E1),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -65,7 +77,12 @@ class _TotalIncomeText extends ConsumerWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         CurrencyFormatter.formatRupiah(totalIncome),
-        style: AppTypography.displayLarge.copyWith(color: AppColors.onPrimary),
+        style: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFFFFFFFF),
+          height: 1.2,
+        ),
       ),
     );
   }
@@ -79,16 +96,14 @@ class _IncomeStreamList extends ConsumerWidget {
     final List<IncomeStreamTotal> streams = ref.watch(
       dashboardControllerProvider.select((s) => s.summary.incomeStreams),
     );
-    final TextStyle style = AppTypography.bodyMedium.copyWith(
-      color: AppColors.onPrimary,
-    );
 
     if (streams.isEmpty) {
-      return Text(
+      return const Text(
         'Belum ada pemasukan bulan ini.',
-        style: style.copyWith(color: AppColors.border),
+        style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
       );
     }
+
     return Column(
       children: [
         for (final IncomeStreamTotal stream in streams)
@@ -99,13 +114,20 @@ class _IncomeStreamList extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     stream.categoryName,
-                    style: style,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFFE2E8F0),
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
                   CurrencyFormatter.formatRupiah(stream.amount),
-                  style: style.copyWith(fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFFFFFFFF),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),

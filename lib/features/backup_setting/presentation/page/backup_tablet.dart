@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../widgets/backup_widgets.dart';
 
 class BackupTablet extends StatelessWidget {
@@ -11,36 +12,40 @@ class BackupTablet extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
-        child: const SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.xxl,
-            AppSpacing.sm,
-            AppSpacing.xxl,
-            AppSpacing.xxxl,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              BackupMessageBanner(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, AppSpacing.xxxl),
+          children: const [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: PageHeader(title: 'Backup Google Drive'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        BackupAccountCard(),
-                        SizedBox(height: AppSpacing.lg),
-                        BackupInfoCard(),
-                      ],
-                    ),
+                  BackupMessageBanner(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            BackupAccountCard(),
+                            SizedBox(height: AppSpacing.lg),
+                            BackupInfoCard(),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: AppSpacing.xxl),
+                      Expanded(child: BackupActionsCard()),
+                    ],
                   ),
-                  SizedBox(width: AppSpacing.xxl),
-                  Expanded(child: BackupActionsCard()),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

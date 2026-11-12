@@ -20,7 +20,6 @@ class SubmitStatus {
 class SubmitController extends ValueNotifier<SubmitStatus> {
   SubmitController() : super(SubmitStatus.idle);
 
-  // [describeError] may turn known domain errors into a specific message.
   Future<bool> run(
     Future<void> Function() task, {
     required String errorMessage,

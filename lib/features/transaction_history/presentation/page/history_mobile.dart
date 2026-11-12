@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../../domain/transaction_entry.dart';
 import '../widgets/history_filter_bar.dart';
 import '../widgets/history_list.dart';
@@ -28,27 +29,29 @@ class HistoryMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const HistoryFilterBar(),
-          const SizedBox(height: AppSpacing.md),
-          const MonthTotals(),
-          const SizedBox(height: AppSpacing.md),
-          Expanded(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const PageHeader(title: 'Riwayat Transaksi'),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: HistoryFilterBar(),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: MonthTotals(),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: HistoryList(
               onEntryTap: (entry) => _openDetail(context, entry),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

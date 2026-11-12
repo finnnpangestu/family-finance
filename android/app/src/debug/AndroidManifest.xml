@@ -4,4 +4,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Mirrors main: Android 13+ predictive back gesture. -->
+    <application android:enableOnBackInvokedCallback="true" />
 </manifest>

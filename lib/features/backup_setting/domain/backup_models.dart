@@ -40,7 +40,8 @@ class BackupException implements Exception {
   String get message => switch (kind) {
     BackupFailureKind.cancelled => 'Proses dibatalkan.',
     BackupFailureKind.notConfigured =>
-      'Login Google belum dikonfigurasi untuk aplikasi ini.',
+      'Login ditolak Google. Pastikan aplikasi Android (package & SHA-1) '
+          'sudah terdaftar di Google Cloud dan akun ini termasuk Test user.',
     BackupFailureKind.unsupported =>
       'Perangkat ini tidak mendukung login Google.',
     BackupFailureKind.network =>

@@ -193,6 +193,14 @@ class GoogleDriveBackupService {
   static BackupException _mapError(Object error) {
     if (error is BackupException) return error;
     if (error is GoogleSignInException) {
+      // Credential Manager reports OAuth misconfiguration (package/SHA-1 not
+      // registered, user not a test user) as "canceled: [16] Account reauth failed".
+      if ((error.description ?? '').contains('[16]')) {
+        return BackupException(
+          BackupFailureKind.notConfigured,
+          error.description,
+        );
+      }
       return switch (error.code) {
         GoogleSignInExceptionCode.canceled ||
         GoogleSignInExceptionCode.interrupted => BackupException(

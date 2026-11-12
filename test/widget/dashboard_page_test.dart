@@ -1,5 +1,7 @@
 import 'package:ff/core/database/app_database.dart';
 import 'package:ff/core/database/database_providers.dart';
+import 'package:ff/core/utils/app_feedback.dart';
+import 'package:ff/features/dashboard/presentation/page/dashboard_page.dart';
 import 'package:ff/features/dashboard/data/finance_repository.dart';
 import 'package:ff/features/dashboard/domain/models/income.dart';
 import 'package:ff/main.dart';
@@ -58,7 +60,7 @@ void main() {
     );
     await pumpApp(tester, const Size(400, 900));
 
-    expect(find.text('Keuangan Keluarga'), findsOneWidget);
+    expect(find.text('Keuangan'), findsOneWidget);
     expect(find.text('Rp 2.500.000'), findsWidgets);
     expect(find.text('Tambah Transaksi'), findsOneWidget);
     expect(find.text('Riwayat Transaksi'), findsOneWidget);
@@ -71,6 +73,23 @@ void main() {
 
     expect(find.text('Pos Tabungan'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  // Regression: pages use shadcn Scaffold, so a Material SnackBar used to crash.
+  testWidgets('feedback toast shows on a page without Material Scaffold', (
+    tester,
+  ) async {
+    await pumpApp(tester, const Size(400, 900));
+
+    AppFeedback.showSuccess(
+      tester.element(find.byType(DashboardPage)),
+      'Pemasukan berhasil disimpan',
+    );
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Pemasukan berhasil disimpan'), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
   });
 
   testWidgets('add transaction opens the type chooser sheet', (tester) async {
