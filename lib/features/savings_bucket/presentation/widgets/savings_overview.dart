@@ -68,7 +68,7 @@ class _Figure extends ConsumerWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                CurrencyFormatter.formatRupiah(value),
+                CurrencyFormatter.format(value),
                 style: AppTypography.headingMedium.copyWith(color: color),
               ),
             ),

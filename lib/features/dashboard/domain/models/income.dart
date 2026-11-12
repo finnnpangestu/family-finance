@@ -7,6 +7,7 @@ class Income extends Equatable {
     required this.amount,
     required this.date,
     this.note,
+    this.memberId,
   });
 
   final int? id;
@@ -17,6 +18,9 @@ class Income extends Equatable {
   final DateTime date;
   final String? note;
 
+  // Family member this belongs to; null = unassigned.
+  final int? memberId;
+
   @override
-  List<Object?> get props => [id, categoryName, amount, date, note];
+  List<Object?> get props => [id, categoryName, amount, date, note, memberId];
 }

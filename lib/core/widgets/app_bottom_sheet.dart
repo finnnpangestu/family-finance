@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
@@ -13,7 +14,7 @@ Future<T?> showAppBottomSheet<T>({
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: const Color(0xFFFFFFFF),
+    backgroundColor: AppColors.card,
     constraints: const BoxConstraints(maxWidth: 640),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
@@ -37,7 +38,7 @@ Future<T?> showAppBottomSheet<T>({
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.border,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),

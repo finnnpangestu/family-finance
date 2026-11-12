@@ -108,6 +108,9 @@ class HistoryController extends AutoDisposeNotifier<HistoryState> {
   void setCategory(String? category) =>
       _applyFilter(state.filter.copyWith(category: () => category));
 
+  void setMember(int? memberId) =>
+      _applyFilter(state.filter.copyWith(memberId: () => memberId));
+
   void select(TransactionEntry entry) =>
       state = state.copyWith(selectedKey: () => entry.key);
 

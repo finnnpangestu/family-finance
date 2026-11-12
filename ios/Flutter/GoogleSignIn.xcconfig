@@ -1,0 +1,8 @@
+// Google Sign-In for iOS. Client IDs are public identifiers, not secrets.
+// GOOGLE_IOS_CLIENT_ID: the "iOS" OAuth client (bundle id com.familyfinance.ff).
+// GOOGLE_REVERSED_CLIENT_ID: the same ID reversed, used as the URL scheme
+//   e.g. 123-abc.apps.googleusercontent.com -> com.googleusercontent.apps.123-abc
+// GOOGLE_SERVER_CLIENT_ID: the "Web application" client, same as .env.
+GOOGLE_IOS_CLIENT_ID =
+GOOGLE_REVERSED_CLIENT_ID =
+GOOGLE_SERVER_CLIENT_ID = 830749522913-u4achi8dt5fj7itubuvibullvfl0nfpf.apps.googleusercontent.com

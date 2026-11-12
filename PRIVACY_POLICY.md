@@ -20,13 +20,20 @@ _English version below._
 
 Saat Anda memakai Aplikasi, data berikut disimpan di database lokal (SQLite) di perangkat Anda:
 
-| Data         | Contoh                                                |
-| ------------ | ----------------------------------------------------- |
-| Pemasukan    | Sumber (mis. "Gaji Utama"), nominal, tanggal, catatan |
-| Pengeluaran  | Kategori, nama item, nominal, tanggal, catatan        |
-| Pos tabungan | Nama pos, jumlah dana, target                         |
+| Data             | Contoh                                                    |
+| ---------------- | --------------------------------------------------------- |
+| Pemasukan        | Sumber (mis. "Gaji Utama"), nominal, tanggal, catatan     |
+| Pengeluaran      | Kategori, nama item, nominal, tanggal, catatan            |
+| Pos tabungan     | Nama pos, jumlah dana, target                             |
+| Anggaran         | Kategori dan batas pengeluaran per bulan                  |
+| Transaksi rutin  | Kategori, nominal, tanggal tiap bulan                     |
+| Anggota keluarga | Nama panggilan yang Anda isi sendiri (mis. "Ayah", "Ibu") |
+| Kategori         | Daftar kategori pemasukan/pengeluaran                     |
+| Pengaturan       | Mata uang tampilan, jam pengingat, akun Google yang aktif |
 
-Data ini tidak pernah dikirim ke kami atau pihak ketiga mana pun. Data hanya meninggalkan perangkat jika **Anda sendiri** menekan tombol backup ke Google Drive (lihat bagian 3).
+Jika Anda masuk dengan lebih dari satu akun Google, data tiap akun disimpan **terpisah** di perangkat, sehingga akun yang satu tidak melihat catatan akun lain.
+
+Data ini tidak pernah dikirim ke kami atau pihak ketiga mana pun. Data hanya meninggalkan perangkat jika **Anda sendiri** menekan tombol backup ke Google Drive (bagian 3) atau membagikan laporan (bagian 5).
 
 ## 3. Fitur Backup Google Drive (Opsional)
 
@@ -34,10 +41,10 @@ Jika Anda memilih masuk dengan akun Google untuk backup, Aplikasi menggunakan la
 
 ### Data Google yang diakses
 
-| Data / izin                                 | Untuk apa                                                           | Disimpan di mana                     |
-| ------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| Alamat email & nama akun Google             | Ditampilkan di halaman Backup agar Anda tahu akun mana yang dipakai | Hanya di perangkat Anda (sesi login) |
-| Izin `drive.appdata` (folder data aplikasi) | Menyimpan dan membaca **satu** file backup (`ff_backup.json`)       | Google Drive milik Anda              |
+| Data / izin                                 | Untuk apa                                                                                     | Disimpan di mana        |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------- |
+| Alamat email & nama akun Google             | Menandai akun yang aktif, memisahkan data per akun, dan sapaan di beranda ("Selamat pagi, …") | Hanya di perangkat Anda |
+| Izin `drive.appdata` (folder data aplikasi) | Menyimpan dan membaca **satu** file backup (`ff_backup.json`)                                 | Google Drive milik Anda |
 
 ### Batasan akses
 
@@ -55,11 +62,19 @@ Penggunaan dan pengiriman informasi yang diterima dari Google API oleh Aplikasi 
 
 ## 4. Izin Perangkat
 
-Di Android, Aplikasi hanya meminta izin **Internet**, yang dipakai semata-mata untuk login Google dan backup Google Drive. Semua fitur lain berjalan tanpa koneksi internet. Aplikasi tidak mengakses lokasi, kontak, kamera, mikrofon, atau file pribadi Anda.
+| Izin                               | Untuk apa                                                                                                                                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Internet                           | Hanya untuk login Google dan backup Google Drive. Semua fitur lain berjalan tanpa internet.                                                   |
+| Notifikasi                         | Pengingat harian dan peringatan anggaran. Diminta hanya saat Anda menyalakannya di **Pengaturan → Pengingat**, dan bisa dimatikan kapan saja. |
+| Jalankan saat perangkat dinyalakan | Menjadwalkan ulang pengingat setelah HP restart. Tidak mengirim data apa pun.                                                                 |
+
+Notifikasi dibuat di perangkat Anda sendiri, bukan dikirim dari server. Aplikasi tidak mengakses lokasi, kontak, kamera, mikrofon, atau file pribadi Anda.
 
 ## 5. Pihak Ketiga
 
 Satu-satunya layanan pihak ketiga yang digunakan adalah **Google** (Google Sign-In dan Google Drive), dan hanya ketika Anda menggunakan fitur backup. Penggunaan layanan tersebut juga tunduk pada [Kebijakan Privasi Google](https://policies.google.com/privacy).
+
+**Laporan bulanan (PDF):** dibuat di perangkat Anda. Laporan hanya keluar dari perangkat jika Anda menekan **Bagikan** dan memilih sendiri tujuannya (mis. WhatsApp atau email); sejak itu laporan tunduk pada kebijakan aplikasi tujuan tersebut.
 
 Font dan aset lain sudah tertanam di dalam Aplikasi, sehingga Aplikasi tidak mengunduh apa pun dari internet saat dipakai.
 
@@ -115,13 +130,20 @@ FF (Family Finance) ("the App", "we") is a family finance tracker that works **f
 
 The App stores the following in a local SQLite database on your device:
 
-| Data            | Examples                                        |
-| --------------- | ----------------------------------------------- |
-| Income          | Source (e.g. "Main Salary"), amount, date, note |
-| Expenses        | Category, item name, amount, date, note         |
-| Savings buckets | Bucket name, allocated amount, target           |
+| Data                   | Examples                                               |
+| ---------------------- | ------------------------------------------------------ |
+| Income                 | Source (e.g. "Main Salary"), amount, date, note        |
+| Expenses               | Category, item name, amount, date, note                |
+| Savings buckets        | Bucket name, allocated amount, target                  |
+| Budgets                | Category and monthly spending limit                    |
+| Recurring transactions | Category, amount, day of the month                     |
+| Family members         | Nicknames you enter yourself (e.g. "Dad", "Mom")       |
+| Categories             | Your income/expense category list                      |
+| Settings               | Display currency, reminder time, active Google account |
 
-This data is never sent to us or to any third party. It leaves your device only when **you** choose to back it up to Google Drive (see section 3).
+If you sign in with more than one Google account, each account's data is kept **separately** on the device, so one account never sees another's records.
+
+This data is never sent to us or to any third party. It leaves your device only when **you** back it up to Google Drive (section 3) or share a report (section 5).
 
 ## 3. Google Drive Backup (Optional)
 
@@ -129,10 +151,10 @@ If you sign in with Google to use backup, the App uses Google Sign-In and the Go
 
 ### Google data accessed
 
-| Data / permission                               | Purpose                                                           | Where it is kept                      |
-| ----------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------- |
-| Google account email & name                     | Shown on the Backup screen so you know which account is connected | On your device only (sign-in session) |
-| `drive.appdata` scope (application data folder) | Save and read **one** backup file (`ff_backup.json`)              | Your own Google Drive                 |
+| Data / permission                               | Purpose                                                                                              | Where it is kept      |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------- |
+| Google account email & name                     | Marks the active account, keeps data separate per account, and the home greeting ("Good morning, …") | On your device only   |
+| `drive.appdata` scope (application data folder) | Save and read **one** backup file (`ff_backup.json`)                                                 | Your own Google Drive |
 
 ### Access limits
 
@@ -150,11 +172,19 @@ The App's use and transfer of information received from Google APIs will adhere 
 
 ## 4. Device Permissions
 
-On Android, the App requests only the **Internet** permission, used solely for Google sign-in and Google Drive backup. Every other feature works offline. The App does not access your location, contacts, camera, microphone, or personal files.
+| Permission     | Purpose                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Internet       | Only for Google sign-in and Google Drive backup. Every other feature works offline.                                            |
+| Notifications  | Daily reminder and budget alerts. Requested only when you turn them on in **Settings → Reminders**; can be turned off anytime. |
+| Run at startup | Re-schedules reminders after the phone restarts. Sends no data.                                                                |
+
+Notifications are created on your device, not pushed from a server. The App does not access your location, contacts, camera, microphone, or personal files.
 
 ## 5. Third Parties
 
 The only third-party service used is **Google** (Google Sign-In and Google Drive), and only when you use the backup feature. Its use is also subject to the [Google Privacy Policy](https://policies.google.com/privacy).
+
+**Monthly report (PDF):** generated on your device. It leaves the device only when you tap **Share** and pick the destination yourself (e.g. WhatsApp or email); from then on it is subject to that app's policy.
 
 Fonts and other assets are bundled inside the App, so it downloads nothing from the internet during normal use.
 

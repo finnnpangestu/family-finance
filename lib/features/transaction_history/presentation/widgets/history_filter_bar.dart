@@ -7,6 +7,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../dashboard/domain/models/month_range.dart';
+import '../../../family_members/data/family_member_repository.dart';
+import '../../../family_members/domain/family_member.dart';
 import '../controllers/history_controller.dart';
 
 // Month switcher plus horizontally scrolling category chips.
@@ -21,6 +23,7 @@ class HistoryFilterBar extends StatelessWidget {
         _MonthSwitcher(),
         SizedBox(height: AppSpacing.md),
         _CategoryFilter(),
+        _MemberFilter(),
       ],
     );
   }
@@ -102,6 +105,47 @@ class _CategoryFilter extends ConsumerWidget {
               onTap: () => controller.setCategory(category),
             ),
         ],
+      ),
+    );
+  }
+}
+
+// Second chip row, only shown once the family has members.
+class _MemberFilter extends ConsumerWidget {
+  const _MemberFilter();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<FamilyMember> members =
+        ref.watch(familyMembersProvider).valueOrNull ?? const [];
+    if (members.isEmpty) return const SizedBox.shrink();
+    final int? selected = ref.watch(
+      historyControllerProvider.select((s) => s.filter.memberId),
+    );
+    final HistoryController controller = ref.read(
+      historyControllerProvider.notifier,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: SizedBox(
+        height: AppSpacing.minTouchTarget,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            _FilterChip(
+              label: 'Semua anggota',
+              selected: selected == null,
+              onTap: () => controller.setMember(null),
+            ),
+            for (final FamilyMember member in members)
+              _FilterChip(
+                label: member.name,
+                selected: selected == member.id,
+                onTap: () => controller.setMember(member.id),
+              ),
+          ],
+        ),
       ),
     );
   }

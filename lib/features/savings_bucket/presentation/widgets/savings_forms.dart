@@ -107,9 +107,9 @@ class _CreateBucketFormState extends ConsumerState<_CreateBucketForm> {
               keyboardType: TextInputType.number,
               inputFormatters: const [AmountInputFormatter()],
               style: AppTypography.headingMedium,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Target (opsional)',
-                prefixText: 'Rp ',
+                prefixText: CurrencyFormatter.prefix,
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
@@ -185,8 +185,8 @@ class _FundFormState extends ConsumerState<_FundForm> {
           children: [
             Text(
               widget.isWithdraw
-                  ? 'Isi pos saat ini: ${CurrencyFormatter.formatRupiah(limit)}'
-                  : 'Saldo bebas tersedia: ${CurrencyFormatter.formatRupiah(limit)}',
+                  ? 'Isi pos saat ini: ${CurrencyFormatter.format(limit)}'
+                  : 'Saldo bebas tersedia: ${CurrencyFormatter.format(limit)}',
               style: AppTypography.bodyLarge.copyWith(
                 color: AppColors.textSecondary,
               ),

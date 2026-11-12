@@ -12,6 +12,9 @@ abstract final class AppFeedback {
   static void showError(BuildContext context, String message) =>
       _show(context, message, AppColors.expense);
 
+  static void showWarning(BuildContext context, String message) =>
+      _show(context, message, AppColors.warning);
+
   // Pages use shadcn Scaffold (no Material ScaffoldMessenger), so feedback
   // goes through the ToastLayer that ShadcnApp provides.
   static void _show(BuildContext context, String message, Color color) {

@@ -7,6 +7,7 @@ import '../../../../core/widgets/page_header.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../domain/transaction_entry.dart';
 import '../controllers/history_controller.dart';
+import '../widgets/share_report_button.dart';
 import '../widgets/history_filter_bar.dart';
 import '../widgets/history_list.dart';
 import '../widgets/month_totals.dart';
@@ -24,7 +25,10 @@ class HistoryTablet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const PageHeader(title: 'Riwayat Transaksi'),
+          const PageHeader(
+            title: 'Riwayat Transaksi',
+            action: ShareReportButton(),
+          ),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,

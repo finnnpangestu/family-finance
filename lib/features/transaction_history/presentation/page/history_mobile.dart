@@ -4,6 +4,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/page_header.dart';
 import '../../domain/transaction_entry.dart';
+import '../widgets/share_report_button.dart';
 import '../widgets/history_filter_bar.dart';
 import '../widgets/history_list.dart';
 import '../widgets/month_totals.dart';
@@ -32,7 +33,7 @@ class HistoryMobile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const PageHeader(title: 'Riwayat Transaksi'),
+        const PageHeader(title: 'Riwayat', action: ShareReportButton()),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: HistoryFilterBar(),

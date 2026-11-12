@@ -28,8 +28,7 @@ class AmountField extends StatelessWidget {
     if (amount == null || amount <= 0) return 'Masukkan nominal lebih dari 0';
     final double? max = maxAmount;
     if (max != null && amount > max) {
-      return maxAmountMessage ??
-          'Maksimal ${CurrencyFormatter.formatRupiah(max)}';
+      return maxAmountMessage ?? 'Maksimal ${CurrencyFormatter.format(max)}';
     }
     return null;
   }
@@ -43,7 +42,10 @@ class AmountField extends StatelessWidget {
       textInputAction: textInputAction,
       inputFormatters: const [AmountInputFormatter()],
       style: AppTypography.headingMedium,
-      decoration: InputDecoration(labelText: label, prefixText: 'Rp '),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixText: CurrencyFormatter.prefix,
+      ),
       validator: _validate,
     );
   }

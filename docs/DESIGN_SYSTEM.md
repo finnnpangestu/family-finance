@@ -52,32 +52,29 @@ Seluruh ikon dalam aplikasi wajib menggunakan package fluentui_system_icons.
   - Standard / Button: 24_regular
   - Large / Action Header: 32_regular atau 48_regular
 
-## 3. Color Palette (High-Contrast Accessibility - WCAG AAA)
+## 3. Color Palette (Brand dari Logo — WCAG AA/AAA)
 
-Warna menggunakan token dasar Shadcn Slate/Emerald dengan rasio kontras tinggi:
+Palet diambil langsung dari logo FF: **ink** `#1A1D24` (garis logo) dan **teal** `#00787C` (aksen tangga). Sumber kebenaran: `lib/core/theme/app_colors.dart`; tema shadcn & Material diturunkan dari token yang sama (`AppTheme.shadcnColors`, `AppTheme.light`).
 
-```dart
-class AppColors {
-  // Brand & Financial Indicators
-  static const Color primary = Color(0xFF0F172A);      // Slate 900
-  static const Color income = Color(0xFF166534);       // Emerald 800 (Pemasukan - Kontras Tinggi)
-  static const Color expense = Color(0xFF991B1B);      // Red 800 (Pengeluaran - Kontras Tinggi)
-  static const Color savings = Color(0xFF1E40AF);      // Blue 800 (Tabungan/Pos)
+| Token | Hex | Kegunaan | Kontras di putih |
+|---|---|---|---|
+| `primary` | `#1A1D24` | Teks utama, tombol utama, kartu hero | 16.9:1 |
+| `brand` / `income` | `#00787C` | Aksen brand, pemasukan, bar grafik masuk | 5.3:1 |
+| `brandDark` | `#005F63` | Teks di atas `brandSurface` | 7.5:1 |
+| `brandSurface` / `incomeSurface` | `#E3F2F2` | Latar ikon/chip brand | — |
+| `expense` | `#991B1B` | Teks pengeluaran | 8.3:1 |
+| `chartExpense` | `#F87171` | Bar grafik keluar | — |
+| `savings` | `#1E40AF` | Pos tabungan | 8.7:1 |
+| `heroStart` → `heroEnd` | `#1A1D24` → `#0B4447` | Gradien kartu saldo | — |
+| `background` | `#F6F8F8` | Latar halaman | — |
+| `card` | `#FFFFFF` | Kartu | — |
+| `muted` | `#EEF2F2` | Latar sekunder, highlight | — |
+| `textSecondary` | `#4A5260` | Teks sekunder | 7.9:1 |
+| `border` | `#DDE4E4` | Garis & divider | — |
 
-  // Backgrounds & Cards
-  static const Color background = Color(0xFFF8FAFC);   // Slate 50
-  static const Color card = Color(0xFFFFFFFF);         // Pure White
-  static const Color muted = Color(0xFFF1F5F9);        // Slate 100
+**Grafik:** pasangan `#00787C` + `#F87171` lolos validator dataviz (CVD ΔE 9.7, normal ΔE 31.8). Chroma teal 0.088 sedikit di bawah batas 0.1 — dipertahankan demi kesesuaian logo, dengan legenda + readout nilai sebagai penanda sekunder.
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFF0F172A);  // Slate 900
-  static const Color textSecondary = Color(0xFF475569);// Slate 600
-  static const Color textMuted = Color(0xFF94A3B8);    // Slate 400
-
-  // Borders & Dividers
-  static const Color border = Color(0xFFE2E8F0);       // Slate 200
-}
-```
+**Status bar:** ikon gelap (`SystemUiOverlayStyle`) karena latar terang dan halaman tanpa AppBar.
 
 ## 4. Global Modal Bottom Sheet Standard (Slide-Up Form)
 

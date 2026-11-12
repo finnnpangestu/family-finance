@@ -24,7 +24,7 @@ class TransactionDetail extends ConsumerWidget {
       context,
       title: 'Hapus transaksi?',
       message:
-          '${entry.title} sebesar ${CurrencyFormatter.formatRupiah(entry.amount)} '
+          '${entry.title} sebesar ${CurrencyFormatter.format(entry.amount)} '
           'akan dihapus permanen.',
       confirmLabel: 'Hapus',
       destructive: true,
@@ -63,7 +63,7 @@ class TransactionDetail extends ConsumerWidget {
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
-            '${entry.isIncome ? '+' : '-'}${CurrencyFormatter.formatRupiah(entry.amount)}',
+            '${entry.isIncome ? '+' : '-'}${CurrencyFormatter.format(entry.amount)}',
             style: AppTypography.displayLarge.copyWith(color: color),
           ),
         ),
@@ -78,6 +78,12 @@ class TransactionDetail extends ConsumerWidget {
             icon: FluentIcons.receipt_24_regular,
             label: 'Item',
             value: itemName,
+          ),
+        if (entry.memberName case final String member)
+          _DetailRow(
+            icon: FluentIcons.person_24_regular,
+            label: 'Anggota',
+            value: member,
           ),
         _DetailRow(
           icon: FluentIcons.calendar_ltr_24_regular,

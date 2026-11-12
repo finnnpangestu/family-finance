@@ -11,7 +11,11 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/category_picker.dart';
 import '../../../../core/widgets/date_field.dart';
 import '../../../../core/widgets/form_submit_area.dart';
+import '../../../../core/widgets/repeat_monthly_switch.dart';
 import '../../domain/models/expense.dart';
+import '../../../budget/domain/budget_status.dart';
+import '../../../categories/data/category_repository.dart';
+import '../../../family_members/widgets/member_picker.dart';
 import '../controllers/transaction_actions.dart';
 
 enum ExpenseMode { lumpsum, itemized }
@@ -28,6 +32,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ValueNotifier<ExpenseMode> _mode = ValueNotifier(ExpenseMode.lumpsum);
   final ValueNotifier<DateTime> _date = ValueNotifier(DateTime.now());
+  final ValueNotifier<int?> _member = ValueNotifier(null);
+  final ValueNotifier<bool> _repeat = ValueNotifier(false);
   final TextEditingController _lumpsumAmount = TextEditingController();
   final TextEditingController _category = TextEditingController();
   final TextEditingController _note = TextEditingController();
@@ -40,6 +46,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   void dispose() {
     _mode.dispose();
     _date.dispose();
+    _member.dispose();
+    _repeat.dispose();
     _lumpsumAmount.dispose();
     _category.dispose();
     _note.dispose();
@@ -66,15 +74,19 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     final String? cleanNote = note.isEmpty ? null : note;
     final TransactionActions actions = ref.read(transactionActionsProvider);
     final DateTime date = _date.value;
+    final int? memberId = _member.value;
+    final bool repeat = _repeat.value;
 
-    final Future<void> Function() task;
+    final Future<List<BudgetAlert>> Function() write;
     if (_mode.value == ExpenseMode.lumpsum) {
       final double? amount = CurrencyFormatter.parse(_lumpsumAmount.text);
       if (amount == null) return;
-      task = () => actions.addLumpsumExpense(
+      write = () => actions.addLumpsumExpense(
         amount: amount,
         date: date,
         note: cleanNote,
+        memberId: memberId,
+        repeatMonthly: repeat,
       );
     } else {
       final List<ExpenseItemDraft> drafts = [
@@ -84,19 +96,23 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
             amount: CurrencyFormatter.parse(item.amount.text) ?? 0,
           ),
       ];
-      task = () => actions.addItemizedExpenses(
+      write = () => actions.addItemizedExpenses(
         categoryName: _category.text.trim(),
         items: drafts,
         date: date,
         note: cleanNote,
+        memberId: memberId,
+        repeatMonthly: repeat,
       );
     }
 
+    List<BudgetAlert> alerts = const [];
     final bool saved = await _submit.run(
-      task,
+      () async => alerts = await write(),
       errorMessage: 'Gagal menyimpan pengeluaran. Silakan coba lagi.',
     );
-    if (saved && mounted) Navigator.of(context).pop(true);
+    // The sheet result carries any budget alerts for the caller to show.
+    if (saved && mounted) Navigator.of(context).pop(alerts);
   }
 
   @override
@@ -160,6 +176,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               builder: (context, date, _) =>
                   DateField(value: date, onChanged: (d) => _date.value = d),
             ),
+            const SizedBox(height: AppSpacing.lg),
+            MemberPicker(selected: _member),
+            RepeatMonthlySwitch(enabled: _repeat, date: _date),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
               controller: _note,
@@ -312,7 +331,7 @@ class _ItemsTotal extends StatelessWidget {
           children: [
             Expanded(child: Text('Total', style: AppTypography.bodyLarge)),
             Text(
-              CurrencyFormatter.formatRupiah(total),
+              CurrencyFormatter.format(total),
               style: AppTypography.headingMedium.copyWith(
                 color: AppColors.expense,
               ),

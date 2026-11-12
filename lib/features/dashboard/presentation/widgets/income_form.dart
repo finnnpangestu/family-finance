@@ -10,7 +10,10 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/category_picker.dart';
 import '../../../../core/widgets/date_field.dart';
 import '../../../../core/widgets/form_submit_area.dart';
+import '../../../../core/widgets/repeat_monthly_switch.dart';
 import '../../domain/models/income.dart';
+import '../../../categories/data/category_repository.dart';
+import '../../../family_members/widgets/member_picker.dart';
 import '../controllers/transaction_actions.dart';
 
 // Stateful only to own its text controllers; pops `true` after saving.
@@ -27,6 +30,8 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
   final TextEditingController _amount = TextEditingController();
   final TextEditingController _note = TextEditingController();
   final ValueNotifier<DateTime> _date = ValueNotifier(DateTime.now());
+  final ValueNotifier<int?> _member = ValueNotifier(null);
+  final ValueNotifier<bool> _repeat = ValueNotifier(false);
   final SubmitController _submit = SubmitController();
 
   @override
@@ -35,6 +40,8 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
     _amount.dispose();
     _note.dispose();
     _date.dispose();
+    _member.dispose();
+    _repeat.dispose();
     _submit.dispose();
     super.dispose();
   }
@@ -54,7 +61,9 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
               amount: amount,
               date: _date.value,
               note: note.isEmpty ? null : note,
+              memberId: _member.value,
             ),
+            repeatMonthly: _repeat.value,
           ),
       errorMessage: 'Gagal menyimpan pemasukan. Silakan coba lagi.',
     );
@@ -86,6 +95,9 @@ class _IncomeFormState extends ConsumerState<IncomeForm> {
               builder: (context, date, _) =>
                   DateField(value: date, onChanged: (d) => _date.value = d),
             ),
+            const SizedBox(height: AppSpacing.lg),
+            MemberPicker(selected: _member),
+            RepeatMonthlySwitch(enabled: _repeat, date: _date),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
               controller: _note,

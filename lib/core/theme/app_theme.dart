@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
 abstract final class AppTheme {
+  // shadcn widgets (buttons, cards, inputs) in the logo palette.
+  static const shadcn.ColorScheme shadcnColors = shadcn.ColorScheme(
+    brightness: Brightness.light,
+    background: AppColors.background,
+    foreground: AppColors.textPrimary,
+    card: AppColors.card,
+    cardForeground: AppColors.textPrimary,
+    popover: AppColors.card,
+    popoverForeground: AppColors.textPrimary,
+    primary: AppColors.primary,
+    primaryForeground: AppColors.onPrimary,
+    secondary: AppColors.brandSurface,
+    secondaryForeground: AppColors.brandDark,
+    muted: AppColors.muted,
+    mutedForeground: AppColors.textSecondary,
+    accent: AppColors.brandSurface,
+    accentForeground: AppColors.brandDark,
+    destructive: AppColors.expense,
+    destructiveForeground: AppColors.onPrimary,
+    border: AppColors.border,
+    input: AppColors.border,
+    ring: AppColors.brand,
+    chart1: AppColors.chartIncome,
+    chart2: AppColors.chartExpense,
+    chart3: AppColors.savings,
+    chart4: AppColors.brandDark,
+    chart5: AppColors.textMuted,
+  );
+
   static ThemeData get light {
     final OutlineInputBorder inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -16,7 +46,9 @@ abstract final class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: AppColors.onPrimary,
-        secondary: AppColors.savings,
+        secondary: AppColors.brand,
+        onSecondary: AppColors.onPrimary,
+        tertiary: AppColors.savings,
         error: AppColors.expense,
         surface: AppColors.card,
         onSurface: AppColors.textPrimary,

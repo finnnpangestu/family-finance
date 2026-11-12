@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/database/database_providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -13,6 +14,36 @@ import '../controllers/backup_controller.dart';
 
 class BackupAccountCard extends ConsumerWidget {
   const BackupAccountCard({super.key});
+
+  // The user decides, since on a shared phone the records may be someone else's.
+  static Future<bool> _askMoveDeviceData(
+    BuildContext context,
+    String accountName,
+  ) async {
+    if (!context.mounted) return false;
+    return AppFeedback.confirm(
+      context,
+      title: 'Pindahkan catatan ke akun ini?',
+      message:
+          'Ada catatan keuangan yang tersimpan di HP ini tanpa akun. '
+          'Pindahkan ke akun $accountName? Pilih "Batal" untuk memulai '
+          'akun ini dengan catatan kosong; catatan HP ini tetap tersimpan.',
+      confirmLabel: 'Pindahkan',
+    );
+  }
+
+  static Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    final bool confirmed = await AppFeedback.confirm(
+      context,
+      title: 'Keluar dari akun?',
+      message:
+          'Catatan akun ini tetap tersimpan di HP dan akan muncul lagi saat '
+          'Anda masuk kembali. Setelah keluar, aplikasi menampilkan catatan '
+          'HP ini (tanpa akun).',
+      confirmLabel: 'Keluar',
+    );
+    if (confirmed) await ref.read(backupControllerProvider.notifier).signOut();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,7 +99,12 @@ class BackupAccountCard extends ConsumerWidget {
                 label: 'Masuk dengan Google',
                 icon: FluentIcons.person_24_regular,
                 isLoading: busy == BackupBusy.signingIn,
-                onPressed: busy == BackupBusy.none ? controller.signIn : null,
+                onPressed: busy == BackupBusy.none
+                    ? () => controller.signIn(
+                        askMoveDeviceData: (name) =>
+                            _askMoveDeviceData(context, name),
+                      )
+                    : null,
               )
             else
               AppButton(
@@ -76,10 +112,52 @@ class BackupAccountCard extends ConsumerWidget {
                 icon: FluentIcons.sign_out_24_regular,
                 variant: AppButtonVariant.outline,
                 isLoading: busy == BackupBusy.signingOut,
-                onPressed: busy == BackupBusy.none ? controller.signOut : null,
+                onPressed: busy == BackupBusy.none
+                    ? () => _signOut(context, ref)
+                    : null,
               ),
+            const SizedBox(height: AppSpacing.md),
+            const _DataOwnerNote(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Makes it explicit whose records are on screen right now.
+class _DataOwnerNote extends ConsumerWidget {
+  const _DataOwnerNote();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AccountProfile? profile = ref.watch(activeAccountProvider);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.muted,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            FluentIcons.database_20_regular,
+            size: 20,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              profile == null
+                  ? 'Catatan yang tampil: tersimpan di HP ini (tanpa akun).'
+                  : 'Catatan yang tampil: milik ${profile.email}.',
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -13,6 +13,7 @@ abstract final class FinanceMappers {
     amount: (row[IncomesTable.amount] as num).toDouble(),
     date: DateFormatter.fromStorage(row[IncomesTable.date] as String),
     note: row[IncomesTable.note] as String?,
+    memberId: row[IncomesTable.memberId] as int?,
   );
 
   static DbRow incomeToRow(Income income) => {
@@ -21,6 +22,7 @@ abstract final class FinanceMappers {
     IncomesTable.amount: income.amount,
     IncomesTable.date: DateFormatter.toStorage(income.date),
     IncomesTable.note: income.note,
+    IncomesTable.memberId: income.memberId,
   };
 
   static Expense expenseFromRow(DbRow row) => Expense(
@@ -31,6 +33,7 @@ abstract final class FinanceMappers {
     amount: (row[ExpensesTable.amount] as num).toDouble(),
     date: DateFormatter.fromStorage(row[ExpensesTable.date] as String),
     note: row[ExpensesTable.note] as String?,
+    memberId: row[ExpensesTable.memberId] as int?,
   );
 
   static DbRow expenseToRow(Expense expense) => {
@@ -41,5 +44,6 @@ abstract final class FinanceMappers {
     ExpensesTable.amount: expense.amount,
     ExpensesTable.date: DateFormatter.toStorage(expense.date),
     ExpensesTable.note: expense.note,
+    ExpensesTable.memberId: expense.memberId,
   };
 }

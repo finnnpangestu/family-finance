@@ -13,6 +13,8 @@ class TransactionEntry extends Equatable {
     required this.date,
     this.note,
     this.isLumpsum = false,
+    this.memberId,
+    this.memberName,
   });
 
   final int id;
@@ -23,6 +25,8 @@ class TransactionEntry extends Equatable {
   final DateTime date;
   final String? note;
   final bool isLumpsum;
+  final int? memberId;
+  final String? memberName;
 
   bool get isIncome => type == TransactionType.income;
 
@@ -41,6 +45,8 @@ class TransactionEntry extends Equatable {
     date,
     note,
     isLumpsum,
+    memberId,
+    memberName,
   ];
 }
 

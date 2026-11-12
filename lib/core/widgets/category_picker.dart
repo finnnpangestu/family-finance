@@ -76,7 +76,7 @@ class _CategoryChip extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : const Color(0xFFFFFFFF),
+          color: selected ? AppColors.primary : AppColors.card,
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
           border: Border.all(
             color: selected ? AppColors.primary : AppColors.border,

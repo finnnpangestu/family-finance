@@ -71,3 +71,105 @@ Acuan: PRD.md, DESIGN_SYSTEM.md, ARCHITECTURE.md, STATE_MANAGEMENT.md, CODING_ST
   - JSON rusak / versi skema lebih baru → tolak restore, data lokal tidak disentuh (restore dalam 1 transaksi DB → rollback otomatis).
 - **Hapus data**: selalu lewat dialog konfirmasi.
 - **Cleanup**: TextEditingController di-dispose; listener auth Google dibatalkan via `ref.onDispose`.
+
+## 7. Dashboard v2 — Layout Modern + Grafik Arus Kas
+
+**User flow (urutan mobile, atas → bawah):**
+
+1. Top bar: sapaan sesuai jam ("Selamat pagi/siang/sore/malam"), judul "Keuangan", tanggal, logo.
+2. Kartu hero gelap: **Sisa Saldo Bebas** (angka terbesar) + dua tile Masuk / Keluar bulan ini (memenuhi indikator F-01).
+3. Grid aksi cepat 4 tombol (Tambah, Riwayat, Tabungan, Backup) — tiap target ≥ 72dp, label 14pt+.
+4. Kartu **Arus Kas 6 Bulan**: grouped bar chart pemasukan vs pengeluaran per bulan. Tap kolom bulan → readout nilai bulan itu + selisih. Default: bulan berjalan.
+5. Kartu **Sumber Pemasukan**: total income bulan ini (Income A + B) + bar proporsi per sumber.
+   Tablet: kiri hero + aksi + sumber pemasukan, kanan grafik.
+
+**Data:** `FinanceRepository.monthlyCashflow(months: 6)` → 2 query `GROUP BY substr(date,1,7)` (tanpa tabel baru). Masuk ke `DashboardState.cashflow`, di-refresh bersama ringkasan.
+
+**Grafik (dataviz skill):** satu sumbu Y, bar tipis ujung atas membulat 4px, celah 2px antar bar, gridline samar, legenda selalu ada (2 seri), nilai di readout bukan di tiap bar. Warna divalidasi: `#166534` (masuk) + `#F87171` (keluar) lolos semua cek (CVD ΔE 16.1); merah-800 lama gagal (ΔE 4.0). Teks memakai warna teks, bukan warna seri. Alternatif teks via `Semantics` berisi semua nilai.
+
+**Dependencies:** tidak ada — chart pakai `CustomPainter` (ringan untuk RAM 2GB).
+
+**Edge cases:** semua bulan 0 → empty state; nilai sangat besar → label sumbu ringkas (rb/jt/M); gagal muat → banner error yang sudah ada, angka terakhir tetap tampil.
+
+## 8. Pengaturan Mata Uang + Perbaikan Sesi Backup
+
+**User flow:**
+
+- Dashboard top bar → ikon ⚙️ → halaman **Pengaturan** → bagian **Mata Uang** (daftar pilihan besar, ketuk untuk memilih) → toast konfirmasi. Semua angka di seluruh app langsung berganti simbol tanpa restart & tanpa keluar dari halaman.
+- Pilihan: IDR (default), USD, EUR, SGD, MYR, SAR, JPY, AUD, GBP, CNY.
+- **Tidak ada konversi kurs** — hanya simbol tampilan; dijelaskan di UI. Input tetap bilangan bulat (tanpa desimal) agar konsisten dengan form yang ada.
+
+**Penyimpanan:** tabel baru `app_settings(key TEXT PRIMARY KEY, value TEXT NOT NULL)` lewat migrasi SQLite v1 → v2 (`onUpgrade`). Tidak ikut backup Drive (preferensi per perangkat). Mata uang dibaca di `main()` sebelum frame pertama supaya tidak berkedip "Rp" → "$".
+
+**Sesi backup (bug):** controller backup sebelumnya `autoDispose`, jadi setiap buka halaman dimulai ulang dan memanggil silent sign-in Google lagi. Perbaikan:
+
+1. Controller dibuat hidup selama app berjalan → state akun & info backup terakhir dipakai ulang saat halaman dibuka lagi.
+2. Flag `backup_signed_in` disimpan; silent sign-in hanya dicoba **sekali per peluncuran app** dan hanya jika user pernah login.
+3. Service mengembalikan akun yang sudah ada di memori tanpa memanggil Google lagi.
+
+**Edge cases:** gagal baca/tulis setting → tetap IDR + toast error; sesi Google kedaluwarsa → flag dihapus, tampil tombol "Masuk" biasa; backup lama (schema v1) tetap bisa dipulihkan ke DB v2.
+
+## 9. Data Terpisah per Akun Google (Profil)
+
+**Masalah:** semua akun Google memakai satu database yang sama, jadi ganti akun tetap menampilkan transaksi akun sebelumnya.
+
+**Desain:** satu file SQLite per akun + satu profil "HP ini" (tanpa akun).
+
+- `ff_family_finance.db` = profil HP ini (file lama, tanpa migrasi) **dan** tempat pengaturan perangkat (`app_settings`: mata uang, akun aktif).
+- `ff_acct_<hash>.db` = data milik satu akun Google. Nama file memakai hash email (email tidak tertulis di nama file).
+- Akun aktif disimpan di pengaturan → saat app dibuka data langsung tampil walau offline / sesi Google kedaluwarsa.
+
+**User flow:**
+
+1. Belum login → data profil HP ini.
+2. Login akun A pertama kali di HP ini:
+   - HP ini punya catatan → dialog: "Pindahkan catatan di HP ini ke akun A?" → _Pindahkan_ (data pindah ke A, profil HP ini kosong) / _Mulai kosong_.
+   - Jika akun A punya backup di Drive dan profilnya baru → pesan: tekan "Pulihkan dari Drive".
+3. Login akun A lagi (profil sudah ada) → langsung pakai data A.
+4. Keluar akun (konfirmasi) → kembali ke data HP ini; data A tetap tersimpan dan muncul lagi saat masuk.
+5. Masuk akun B → data B (kosong bila baru). Backup/restore Drive selalu untuk profil aktif.
+
+**Teknis:** `deviceDatabaseProvider` (tetap) + `activeAccountProvider`; `appDatabaseProvider` diturunkan dari akun aktif sehingga semua repository otomatis pindah. Setelah ganti profil, `financeRevisionProvider` di-bump agar dashboard/riwayat/tabungan memuat ulang. Pemindahan data: salin semua baris ke profil akun dalam satu transaksi (id dibuat ulang agar tidak bentrok), baru kemudian profil HP ini dikosongkan.
+
+**Edge cases:** pemindahan gagal → profil tidak diganti, data HP ini utuh; sesi Google kedaluwarsa → data akun tetap tampil (offline-first), cukup login ulang; user lama yang sudah login sebelum update cukup login sekali lagi lalu memilih "Pindahkan".
+
+**Sapaan dashboard:** "Selamat pagi/siang/sore/malam, <nama depan akun Google>"; nama disimpan di pengaturan agar tampil offline, tanpa akun → sapaan saja.
+
+## 10. Fitur Lanjutan: Anggaran, Transaksi Rutin, Laporan, Anggota, Pengingat, Kategori
+
+### Database v3 (migrasi `onUpgrade`, data lama utuh)
+
+| Tabel / kolom                                                                                                         | Isi                                                               |
+| --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `categories(id, type, name)` UNIQUE(type,name)                                                                        | Kategori pemasukan/pengeluaran; diisi default saat create/upgrade |
+| `family_members(id, name UNIQUE)`                                                                                     | Anggota keluarga                                                  |
+| `incomes.member_id`, `expenses.member_id`                                                                             | Opsional, NULL = tanpa anggota                                    |
+| `budgets(id, category_name UNIQUE, monthly_limit)`                                                                    | Batas pengeluaran per kategori per bulan                          |
+| `recurring_transactions(id, type, category_name, item_name, amount, day_of_month, next_due, note, member_id, active)` | Aturan transaksi rutin bulanan                                    |
+
+Semua tabel baru ikut backup Drive & pemindahan data ke akun. Daftar kolom backup dipindah ke satu sumber (`AppDatabase.backupColumns`).
+
+### User flow
+
+- **Anggaran:** Dashboard → kartu "Anggaran Bulan Ini" (progres per kategori; ≥80% kuning "hampir habis", ≥100% merah "melebihi") → "Atur" → halaman Anggaran (tambah/ubah/hapus batas). Setelah menyimpan pengeluaran yang membuat kategori melewati 80%/100% → toast peringatan (+ notifikasi bila diaktifkan).
+- **Transaksi rutin:** di form pemasukan/pengeluaran (mode cepat & per item kategori) ada sakelar "Ulangi tiap bulan (tgl X)". Disimpan sebagai aturan + transaksi pertama. Saat app dibuka, semua jatuh tempo s/d hari ini dibuat otomatis (termasuk bulan yang terlewat). Kelola/hentikan di Pengaturan → Transaksi Rutin. Tanggal 29–31 jatuh ke hari terakhir bulan pendek.
+- **Laporan bulanan:** Riwayat → "Bagikan Laporan" → PDF bulan yang dipilih (ringkasan masuk/keluar/selisih, pengeluaran per kategori, status anggaran, daftar transaksi) → share sheet (WhatsApp, email, simpan).
+- **Anggota keluarga:** Pengaturan → Anggota (tambah/hapus). Form transaksi: pilih anggota (opsional). Riwayat: filter per anggota; detail menampilkan anggota. Hapus anggota → transaksinya menjadi "tanpa anggota".
+- **Pengingat:** Pengaturan → Pengingat: sakelar pengingat harian + jam; sakelar peringatan anggaran. Izin notifikasi diminta saat sakelar dinyalakan.
+- **Kategori custom:** Pengaturan → Kategori (tab Pemasukan/Pengeluaran): tambah & hapus. Chip di form diambil dari daftar ini; mengetik kategori baru di form otomatis menambahkannya.
+
+### Dependencies baru
+
+| Package                                                         | Alasan                                                                        |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `pdf`                                                           | Membuat PDF laporan secara lokal (offline)                                    |
+| `share_plus`                                                    | Share sheet native untuk file laporan                                         |
+| `path_provider`                                                 | Folder sementara untuk file PDF                                               |
+| `flutter_local_notifications` + `timezone` + `flutter_timezone` | Pengingat harian terjadwal di zona waktu lokal & alert anggaran, tanpa server |
+
+### Edge cases
+
+- Generasi transaksi rutin idempoten: memakai `next_due` dan berjalan dalam satu transaksi DB → tidak dobel walau app dibuka berkali-kali.
+- Izin notifikasi ditolak → sakelar kembali mati + pesan.
+- Hapus kategori tidak menghapus transaksi lama (kategori tersimpan sebagai teks).
+- Laporan bulan kosong tetap dibuat (berisi ringkasan nol). Gagal membuat/berbagi → toast error.

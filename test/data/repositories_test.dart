@@ -4,6 +4,7 @@ import 'package:ff/features/dashboard/domain/models/dashboard_summary.dart';
 import 'package:ff/features/dashboard/domain/models/expense.dart';
 import 'package:ff/features/dashboard/domain/models/income.dart';
 import 'package:ff/features/dashboard/domain/models/month_range.dart';
+import 'package:ff/features/dashboard/domain/models/monthly_cashflow.dart';
 import 'package:ff/features/savings_bucket/data/savings_repository.dart';
 import 'package:ff/features/savings_bucket/domain/savings_bucket.dart';
 import 'package:ff/features/transaction_history/data/history_repository.dart';
@@ -210,6 +211,45 @@ void main() {
         CategorySpending(categoryName: Expense.lumpsumCategory, amount: 300000),
         CategorySpending(categoryName: 'Tagihan', amount: 200000),
       ]);
+    });
+  });
+
+  group('FinanceRepository.monthlyCashflow', () {
+    test('returns 6 months oldest first, zero-filled, across years', () async {
+      await finance.addIncome(
+        Income(
+          categoryName: 'Gaji Utama',
+          amount: 3000000,
+          date: DateTime(2026, 2, 28),
+        ),
+      );
+      await finance.addLumpsumExpense(
+        amount: 400000,
+        date: DateTime(2025, 12, 1),
+      );
+      await finance.addLumpsumExpense(amount: 100000, date: DateTime(2026, 2));
+      // Outside the window on both sides.
+      await finance.addLumpsumExpense(amount: 9, date: DateTime(2025, 9, 30));
+      await finance.addLumpsumExpense(amount: 9, date: DateTime(2026, 3, 1));
+
+      final List<MonthlyCashflow> flow = await finance.monthlyCashflow(
+        now: DateTime(2026, 2, 15),
+      );
+
+      expect(flow.map((m) => m.month), [
+        DateTime(2025, 9),
+        DateTime(2025, 10),
+        DateTime(2025, 11),
+        DateTime(2025, 12),
+        DateTime(2026, 1),
+        DateTime(2026, 2),
+      ]);
+      expect(flow[0].expense, 9);
+      expect(flow[3].expense, 400000);
+      expect(flow[4].isEmpty, isTrue);
+      expect(flow[5].income, 3000000);
+      expect(flow[5].expense, 100000);
+      expect(flow[5].net, 2900000);
     });
   });
 

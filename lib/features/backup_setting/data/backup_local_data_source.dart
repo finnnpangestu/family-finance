@@ -5,9 +5,6 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/database_providers.dart';
-import '../../../core/database/tables/expenses_table.dart';
-import '../../../core/database/tables/incomes_table.dart';
-import '../../../core/database/tables/savings_buckets_table.dart';
 import '../domain/backup_models.dart';
 
 final backupLocalDataSourceProvider = Provider<BackupLocalDataSource>(
@@ -21,30 +18,7 @@ class BackupLocalDataSource {
   static const String appId = 'ff.family_finance';
 
   // Whitelisted columns per table; anything else in a file is ignored.
-  static const Map<String, List<String>> columns = {
-    IncomesTable.name: [
-      IncomesTable.id,
-      IncomesTable.categoryName,
-      IncomesTable.amount,
-      IncomesTable.date,
-      IncomesTable.note,
-    ],
-    ExpensesTable.name: [
-      ExpensesTable.id,
-      ExpensesTable.isLumpsum,
-      ExpensesTable.categoryName,
-      ExpensesTable.itemName,
-      ExpensesTable.amount,
-      ExpensesTable.date,
-      ExpensesTable.note,
-    ],
-    SavingsBucketsTable.name: [
-      SavingsBucketsTable.id,
-      SavingsBucketsTable.bucketName,
-      SavingsBucketsTable.allocatedAmount,
-      SavingsBucketsTable.targetAmount,
-    ],
-  };
+  static const Map<String, List<String>> columns = AppDatabase.profileColumns;
 
   final AppDatabase _appDatabase;
 
@@ -80,6 +54,9 @@ class BackupLocalDataSource {
         }
       }
       await batch.commit(noResult: true);
+      // Backups older than v3 carry no categories: rebuild the chip list.
+      await AppDatabase.seedDefaultCategories(txn);
+      await AppDatabase.syncCategoriesFromTransactions(txn);
     });
   }
 

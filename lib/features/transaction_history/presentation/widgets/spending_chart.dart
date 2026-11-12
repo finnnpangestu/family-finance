@@ -77,7 +77,7 @@ class _Bar extends StatelessWidget {
                 ),
               ),
               Text(
-                '${CurrencyFormatter.formatRupiah(item.amount)} · ${(share * 100).round()}%',
+                '${CurrencyFormatter.format(item.amount)} · ${(share * 100).round()}%',
                 style: AppTypography.caption.copyWith(
                   color: AppColors.textSecondary,
                 ),

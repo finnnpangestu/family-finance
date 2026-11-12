@@ -11,6 +11,7 @@ import '../domain/models/dashboard_summary.dart';
 import '../domain/models/expense.dart';
 import '../domain/models/income.dart';
 import '../domain/models/month_range.dart';
+import '../domain/models/monthly_cashflow.dart';
 import 'finance_mappers.dart';
 
 final financeRepositoryProvider = Provider<FinanceRepository>(
@@ -33,6 +34,7 @@ class FinanceRepository {
     required double amount,
     required DateTime date,
     String? note,
+    int? memberId,
   }) async {
     final Database db = await _db;
     return db.insert(
@@ -44,6 +46,7 @@ class FinanceRepository {
           amount: amount,
           date: date,
           note: note,
+          memberId: memberId,
         ),
       ),
     );
@@ -55,6 +58,7 @@ class FinanceRepository {
     required List<ExpenseItemDraft> items,
     required DateTime date,
     String? note,
+    int? memberId,
   }) async {
     if (items.isEmpty) throw ArgumentError.value(items, 'items', 'is empty');
     final Database db = await _db;
@@ -71,6 +75,7 @@ class FinanceRepository {
               amount: item.amount,
               date: date,
               note: note,
+              memberId: memberId,
             ),
           ),
         );
@@ -147,6 +152,51 @@ class FinanceRepository {
       totalAllocated: totalAllocated,
     );
   }
+
+  // Oldest first, always [months] entries; months without data are zero.
+  Future<List<MonthlyCashflow>> monthlyCashflow({
+    int months = 6,
+    DateTime? now,
+  }) async {
+    final Database db = await _db;
+    final MonthRange current = MonthRange.of(now ?? DateTime.now());
+    final List<MonthRange> ranges = [current];
+    while (ranges.length < months) {
+      ranges.insert(0, ranges.first.previous);
+    }
+    final List<Object> args = [
+      DateFormatter.toStorage(ranges.first.start),
+      DateFormatter.toStorage(current.end),
+    ];
+
+    Future<Map<String, double>> totalsByMonth(String table) async {
+      // Dates are stored as yyyy-MM-dd, so the first 7 chars are the month.
+      final List<DbRow> rows = await db.rawQuery(
+        'SELECT substr(date, 1, 7) AS ym, SUM(amount) AS total FROM $table '
+        'WHERE date >= ? AND date < ? GROUP BY ym',
+        args,
+      );
+      return {
+        for (final DbRow row in rows)
+          row['ym'] as String: (row['total'] as num).toDouble(),
+      };
+    }
+
+    final Map<String, double> income = await totalsByMonth(IncomesTable.name);
+    final Map<String, double> expense = await totalsByMonth(ExpensesTable.name);
+
+    return [
+      for (final MonthRange range in ranges)
+        MonthlyCashflow(
+          month: range.start,
+          income: income[_monthKey(range.start)] ?? 0,
+          expense: expense[_monthKey(range.start)] ?? 0,
+        ),
+    ];
+  }
+
+  static String _monthKey(DateTime month) =>
+      DateFormatter.toStorage(month).substring(0, 7);
 
   // Most used first so frequent choices appear at the start of the chip list.
   Future<List<String>> incomeCategories() =>

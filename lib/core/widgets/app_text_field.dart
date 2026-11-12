@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
@@ -38,12 +39,12 @@ class AppTextField extends StatelessWidget {
         hintText: hint,
         counterText: '',
         filled: true,
-        fillColor: const Color(0xFFFFFFFF),
+        fillColor: AppColors.card,
         labelStyle: AppTypography.bodyMedium.copyWith(
-          color: const Color(0xFF475569),
+          color: AppColors.textSecondary,
         ),
         hintStyle: AppTypography.bodyMedium.copyWith(
-          color: const Color(0xFF94A3B8),
+          color: AppColors.textMuted,
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -51,23 +52,23 @@ class AppTextField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.border, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.border, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFF0F172A), width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFF991B1B), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.expense, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide: const BorderSide(color: Color(0xFF991B1B), width: 2),
+          borderSide: const BorderSide(color: AppColors.expense, width: 2),
         ),
       ),
       validator: (value) {

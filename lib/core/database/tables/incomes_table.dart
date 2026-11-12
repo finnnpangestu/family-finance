@@ -6,6 +6,8 @@ abstract final class IncomesTable {
   static const String amount = 'amount';
   static const String date = 'date';
   static const String note = 'note';
+  // v3: optional family member (null = unassigned).
+  static const String memberId = 'member_id';
 
   static const String createSql =
       '''

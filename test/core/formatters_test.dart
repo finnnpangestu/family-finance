@@ -8,9 +8,9 @@ void main() {
 
   group('CurrencyFormatter', () {
     test('formats rupiah with dot separators', () {
-      expect(CurrencyFormatter.formatRupiah(1500000), 'Rp 1.500.000');
-      expect(CurrencyFormatter.formatRupiah(0), 'Rp 0');
-      expect(CurrencyFormatter.formatRupiah(-25000), '-Rp 25.000');
+      expect(CurrencyFormatter.format(1500000), 'Rp 1.500.000');
+      expect(CurrencyFormatter.format(0), 'Rp 0');
+      expect(CurrencyFormatter.format(-25000), '-Rp 25.000');
     });
 
     test('parses grouped input back to a number', () {
@@ -19,6 +19,15 @@ void main() {
       expect(CurrencyFormatter.parse(''), isNull);
       expect(CurrencyFormatter.parse('abc'), isNull);
     });
+  });
+
+  test('compact formats axis labels', () {
+    expect(CurrencyFormatter.compact(0), '0');
+    expect(CurrencyFormatter.compact(750000), '750 rb');
+    expect(CurrencyFormatter.compact(2500000), '2,5 jt');
+    expect(CurrencyFormatter.compact(15000000), '15 jt');
+    expect(CurrencyFormatter.compact(1200000000), '1,2 M');
+    expect(CurrencyFormatter.compact(-3000000), '-3 jt');
   });
 
   group('AmountInputFormatter', () {

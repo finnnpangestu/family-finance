@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
@@ -24,10 +25,9 @@ class GoogleDriveBackupService {
   static const List<String> scopes = [drive.DriveApi.driveAppdataScope];
 
   // Web OAuth client id, required by Android Credential Manager.
-  // Pass with --dart-define=GOOGLE_SERVER_CLIENT_ID=xxx.apps.googleusercontent.com
-  static const String _serverClientId = String.fromEnvironment(
-    'GOOGLE_SERVER_CLIENT_ID',
-  );
+  // Set GOOGLE_SERVER_CLIENT_ID in .env file.
+  static String get _serverClientId =>
+      dotenv.maybeGet('GOOGLE_SERVER_CLIENT_ID') ?? '';
 
   final GoogleSignIn _signIn;
   Future<void>? _initializing;
@@ -43,8 +43,11 @@ class GoogleDriveBackupService {
         throw _mapError(error);
       });
 
-  // Silent sign-in on page open; returns null when no session exists.
+  // Silent sign-in; returns null when no session exists. An account already
+  // held in memory is reused so Google is not asked again.
   Future<BackupAccount?> restoreSession() async {
+    final GoogleSignInAccount? cached = _account;
+    if (cached != null) return _toAccount(cached);
     try {
       await _ensureInitialized();
       final GoogleSignInAccount? account = await _signIn
@@ -193,9 +196,12 @@ class GoogleDriveBackupService {
   static BackupException _mapError(Object error) {
     if (error is BackupException) return error;
     if (error is GoogleSignInException) {
-      // Credential Manager reports OAuth misconfiguration (package/SHA-1 not
-      // registered, user not a test user) as "canceled: [16] Account reauth failed".
-      if ((error.description ?? '').contains('[16]')) {
+      // Credential Manager reports OAuth misconfiguration as "[16] Account
+      // reauth failed", "[28444] Developer console is not set up correctly"
+      // or, for a client Google has not propagated yet, "[28404] Failed to
+      // retrieve an ID token".
+      final String description = error.description ?? '';
+      if (const ['[16]', '[28444]', '[28404]'].any(description.contains)) {
         return BackupException(
           BackupFailureKind.notConfigured,
           error.description,

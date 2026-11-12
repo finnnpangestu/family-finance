@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/app_feedback.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../budget/domain/budget_status.dart';
 import 'expense_form.dart';
 import 'income_form.dart';
 
@@ -15,12 +16,13 @@ enum _TransactionType { income, expense }
 Future<void> openAddTransactionFlow(BuildContext context) async {
   final _TransactionType? type = await showAppBottomSheet<_TransactionType>(
     context: context,
-    title: 'Tambah Transaksi',
+    title: 'Tambah',
     child: const _TypeChooser(),
   );
   if (type == null || !context.mounted) return;
 
-  final bool? saved = await showAppBottomSheet<bool>(
+  // Income pops `true`; expense pops the budget alerts it triggered.
+  final Object? result = await showAppBottomSheet<Object>(
     context: context,
     title: type == _TransactionType.income
         ? 'Tambah Pemasukan'
@@ -29,14 +31,20 @@ Future<void> openAddTransactionFlow(BuildContext context) async {
         ? const IncomeForm()
         : const ExpenseForm(),
   );
-  if ((saved ?? false) && context.mounted) {
-    AppFeedback.showSuccess(
+  if (result == null || !context.mounted) return;
+  if (result is List<BudgetAlert> && result.isNotEmpty) {
+    AppFeedback.showWarning(
       context,
-      type == _TransactionType.income
-          ? 'Pemasukan berhasil disimpan'
-          : 'Pengeluaran berhasil disimpan',
+      'Tersimpan. ${result.map((a) => a.message).join(' ')}',
     );
+    return;
   }
+  AppFeedback.showSuccess(
+    context,
+    type == _TransactionType.income
+        ? 'Pemasukan berhasil disimpan'
+        : 'Pengeluaran berhasil disimpan',
+  );
 }
 
 class _TypeChooser extends StatelessWidget {

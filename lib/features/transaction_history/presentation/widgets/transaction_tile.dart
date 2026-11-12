@@ -24,9 +24,11 @@ class TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color color = entry.isIncome ? AppColors.income : AppColors.expense;
-    final String subtitle = entry.itemName != null
-        ? '${entry.categoryName} · ${DateFormatter.medium(entry.date)}'
-        : DateFormatter.medium(entry.date);
+    final String subtitle = [
+      if (entry.itemName != null) entry.categoryName,
+      DateFormatter.medium(entry.date),
+      ?entry.memberName,
+    ].join(' · ');
 
     return Material(
       color: selected ? AppColors.muted : AppColors.card,
@@ -94,7 +96,7 @@ class TransactionTile extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  '${entry.isIncome ? '+' : '-'}${CurrencyFormatter.formatRupiah(entry.amount)}',
+                  '${entry.isIncome ? '+' : '-'}${CurrencyFormatter.format(entry.amount)}',
                   style: AppTypography.bodyLarge.copyWith(
                     color: color,
                     fontWeight: FontWeight.w700,

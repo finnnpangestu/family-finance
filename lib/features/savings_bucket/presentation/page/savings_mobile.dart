@@ -16,9 +16,7 @@ class SavingsMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
-          child: PageHeader(title: 'Pos Tabungan'),
-        ),
+        const SliverToBoxAdapter(child: PageHeader(title: 'Pos Tabungan')),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,

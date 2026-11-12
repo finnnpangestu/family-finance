@@ -74,7 +74,7 @@ class _Total extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                CurrencyFormatter.formatRupiah(amount),
+                CurrencyFormatter.format(amount),
                 style: AppTypography.bodyLarge.copyWith(
                   color: color,
                   fontWeight: FontWeight.w700,

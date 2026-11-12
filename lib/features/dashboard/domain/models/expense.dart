@@ -9,6 +9,7 @@ class Expense extends Equatable {
     required this.amount,
     required this.date,
     this.note,
+    this.memberId,
   });
 
   // Category used by the quick (lump-sum) recording mode.
@@ -24,6 +25,9 @@ class Expense extends Equatable {
   final DateTime date;
   final String? note;
 
+  // Family member this belongs to; null = unassigned.
+  final int? memberId;
+
   @override
   List<Object?> get props => [
     id,
@@ -33,6 +37,7 @@ class Expense extends Equatable {
     amount,
     date,
     note,
+    memberId,
   ];
 }
 

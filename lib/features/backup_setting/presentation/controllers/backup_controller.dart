@@ -53,15 +53,19 @@ class BackupState extends Equatable {
   List<Object?> get props => [account, lastBackup, busy, message];
 }
 
+// Lives for the whole app session: reopening the page reuses the account
+// and last-backup info instead of re-checking Google every visit.
 final backupControllerProvider =
-    NotifierProvider.autoDispose<BackupController, BackupState>(
-      BackupController.new,
-    );
+    NotifierProvider<BackupController, BackupState>(BackupController.new);
 
-class BackupController extends AutoDisposeNotifier<BackupState> {
+// Asked on a first sign-in when the device profile already holds records.
+typedef MoveDeviceDataPrompt = Future<bool> Function(String accountName);
+
+class BackupController extends Notifier<BackupState> {
   GoogleDriveBackupService get _drive =>
       ref.read(googleDriveBackupServiceProvider);
   BackupLocalDataSource get _local => ref.read(backupLocalDataSourceProvider);
+  ActiveAccount get _profiles => ref.read(activeAccountProvider.notifier);
 
   @override
   BackupState build() {
@@ -69,15 +73,18 @@ class BackupController extends AutoDisposeNotifier<BackupState> {
     return const BackupState(busy: BackupBusy.checking);
   }
 
+  // Runs once per app launch, and only talks to Google when an account
+  // profile is active; first-time users never see a sign-in prompt here.
   Future<void> _restoreSession() async {
-    final KeepAliveLink keepAlive = ref.keepAlive();
-    try {
-      final BackupAccount? account = await _drive.restoreSession();
-      state = state.copyWith(account: () => account, busy: BackupBusy.none);
-      if (account != null) await _loadLatest();
-    } finally {
-      keepAlive.close();
+    if (ref.read(activeAccountProvider) == null) {
+      state = state.copyWith(busy: BackupBusy.none);
+      return;
     }
+    // An expired session keeps the profile: the data stays visible offline
+    // and signing in again with the same account needs no prompt.
+    final BackupAccount? account = await _drive.restoreSession();
+    state = state.copyWith(account: () => account, busy: BackupBusy.none);
+    if (account != null) await _loadLatest();
   }
 
   Future<void> _loadLatest() async {
@@ -94,15 +101,33 @@ class BackupController extends AutoDisposeNotifier<BackupState> {
     }
   }
 
-  Future<void> signIn() => _run(BackupBusy.signingIn, () async {
-    final BackupAccount account = await _drive.signIn();
-    state = state.copyWith(account: () => account);
-    await _loadLatest();
-    return null;
-  });
+  // Signs in and switches to that account's data profile.
+  Future<void> signIn({required MoveDeviceDataPrompt askMoveDeviceData}) =>
+      _run(BackupBusy.signingIn, () async {
+        final BackupAccount account = await _drive.signIn();
+        final bool isNewProfile = !await _profiles.profileExists(account.email);
+        final bool move =
+            isNewProfile &&
+            await _profiles.deviceHasData() &&
+            await askMoveDeviceData(account.displayName ?? account.email);
+        await _profiles.activate(
+          account.email,
+          displayName: account.displayName,
+          moveDeviceData: move,
+        );
+        state = state.copyWith(account: () => account);
+        await _loadLatest();
+        if (isNewProfile && !move && state.lastBackup != null) {
+          return 'Ada backup untuk akun ini di Google Drive. Tekan '
+              '"Pulihkan dari Drive" untuk memuat datanya.';
+        }
+        return move ? 'Catatan di HP ini dipindahkan ke akun Anda.' : null;
+      });
 
+  // Returns to the device profile; the account's data stays on the phone.
   Future<void> signOut() => _run(BackupBusy.signingOut, () async {
     await _drive.signOut();
+    await _profiles.deactivate();
     state = state.copyWith(account: () => null, lastBackup: () => null);
     return null;
   });
@@ -130,8 +155,6 @@ class BackupController extends AutoDisposeNotifier<BackupState> {
   // Runs one action at a time; the task returns an optional success message.
   Future<void> _run(BackupBusy busy, Future<String?> Function() task) async {
     if (state.isBusy) return;
-    // A restore must finish even if the user leaves the page.
-    final KeepAliveLink keepAlive = ref.keepAlive();
     state = state.copyWith(busy: busy, message: () => null);
     try {
       final String? success = await task();
@@ -155,8 +178,6 @@ class BackupController extends AutoDisposeNotifier<BackupState> {
           isError: true,
         ),
       );
-    } finally {
-      keepAlive.close();
     }
   }
 }

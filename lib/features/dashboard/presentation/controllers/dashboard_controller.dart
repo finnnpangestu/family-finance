@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/database_providers.dart';
+import '../../../recurring/data/recurring_repository.dart';
 import '../../data/finance_repository.dart';
 import '../../domain/models/dashboard_summary.dart';
 import '../../domain/models/month_range.dart';
+import '../../domain/models/monthly_cashflow.dart';
 import 'dashboard_state.dart';
 
 final dashboardControllerProvider =
@@ -27,11 +29,29 @@ class DashboardController extends Notifier<DashboardState> {
     final int token = ++_loadToken;
     state = state.copyWith(isLoading: true, errorMessage: () => null);
     try {
-      final DashboardSummary summary = await ref
-          .read(financeRepositoryProvider)
-          .loadSummary(MonthRange.of(DateTime.now()));
+      // Recurring transactions due since the last launch land first, so
+      // the summary below already includes them.
+      final int generated = await ref
+          .read(recurringRepositoryProvider)
+          .generateDue(DateTime.now());
       if (token != _loadToken) return;
-      state = state.copyWith(summary: summary, isLoading: false);
+      if (generated > 0) {
+        // Other screens refresh too; this listener re-enters refresh(),
+        // which then finds nothing due.
+        ref.read(financeRevisionProvider.notifier).bump();
+        return;
+      }
+      final FinanceRepository repository = ref.read(financeRepositoryProvider);
+      final DashboardSummary summary = await repository.loadSummary(
+        MonthRange.of(DateTime.now()),
+      );
+      final List<MonthlyCashflow> cashflow = await repository.monthlyCashflow();
+      if (token != _loadToken) return;
+      state = state.copyWith(
+        summary: summary,
+        cashflow: cashflow,
+        isLoading: false,
+      );
     } catch (error, stack) {
       debugPrint('Dashboard load failed: $error\n$stack');
       if (token != _loadToken) return;

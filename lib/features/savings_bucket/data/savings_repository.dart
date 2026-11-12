@@ -54,7 +54,7 @@ class SavingsRepository {
       final double free = await _freeBalance(txn);
       if (amount > free) {
         throw SavingsRuleException(
-          'Saldo bebas tidak cukup. Tersedia ${CurrencyFormatter.formatRupiah(free)}.',
+          'Saldo bebas tidak cukup. Tersedia ${CurrencyFormatter.format(free)}.',
         );
       }
       await _changeAllocated(txn, bucketId, amount);
@@ -68,7 +68,7 @@ class SavingsRepository {
       final SavingsBucket bucket = await _find(txn, bucketId);
       if (amount > bucket.allocatedAmount) {
         throw SavingsRuleException(
-          'Isi pos hanya ${CurrencyFormatter.formatRupiah(bucket.allocatedAmount)}.',
+          'Isi pos hanya ${CurrencyFormatter.format(bucket.allocatedAmount)}.',
         );
       }
       await _changeAllocated(txn, bucketId, -amount);

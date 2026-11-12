@@ -24,7 +24,7 @@ class BucketCard extends ConsumerWidget {
       context,
       title: 'Hapus ${bucket.bucketName}?',
       message: bucket.allocatedAmount > 0
-          ? 'Isi pos ${CurrencyFormatter.formatRupiah(bucket.allocatedAmount)} '
+          ? 'Isi pos ${CurrencyFormatter.format(bucket.allocatedAmount)} '
                 'akan kembali ke saldo bebas.'
           : 'Pos ini akan dihapus.',
       confirmLabel: 'Hapus',
@@ -81,7 +81,7 @@ class BucketCard extends ConsumerWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                CurrencyFormatter.formatRupiah(bucket.allocatedAmount),
+                CurrencyFormatter.format(bucket.allocatedAmount),
                 style: AppTypography.headingLarge.copyWith(
                   color: AppColors.savings,
                 ),
@@ -105,7 +105,7 @@ class BucketCard extends ConsumerWidget {
                 bucket.isTargetReached
                     ? 'Target tercapai!'
                     : '${(bucket.progress * 100).floor()}% dari '
-                          '${CurrencyFormatter.formatRupiah(bucket.targetAmount)}',
+                          '${CurrencyFormatter.format(bucket.targetAmount)}',
                 style: AppTypography.caption.copyWith(
                   color: AppColors.textSecondary,
                 ),
